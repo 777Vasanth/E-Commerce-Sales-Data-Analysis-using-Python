@@ -1,0 +1,243 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+print("1.Load the dataset and display the first 100 rows")
+df = pd.read_excel('Ecommerce_Dataset_20K.xlsx')
+print(df.head(100))
+
+print("2.Print the shape (rows,columns) of the dataset")
+df = pd.read_excel('Ecommerce_Dataset_20K.xlsx')
+print(df.shape)
+print("Shape:", df.shape)
+
+print("3.Print all column names in the dataset")
+df = pd.read_excel('Ecommerce_Dataset_20K.xlsx')
+print(df.columns.tolist())
+
+print("4.check the data types of each column")
+df = pd.read_excel('Ecommerce_Dataset_20K.xlsx')
+print(df.dtypes)
+
+print("5.Use a for loop to print each unique payment method")
+for method in df['Payment Method'].unique():
+    print(method)
+
+print("6.Write a function that takes customer age and returns the age group(teen,young adult,adult,senior")
+def age_group(age):
+    if age < 20:
+        return 'Teen'
+    elif age < 35:
+        return 'Young Adult'
+    elif age < 60:
+        return 'Adult'
+    else:
+        return 'Senior'
+
+df['Age Group'] = df['Customer Age'].apply(age_group)
+print(df['Age Group'].value_counts())
+
+print("7.Use list comprehension to get all orders where net revenue >5000")
+high_rev = [oid for oid, rev in zip(df['Order ID'], df['Net Revenue (₹)']) if rev > 5000]
+print(len(high_rev), "orders above ₹5000")
+
+print("8.Convert the net revenue column to a numpy array and find mean,median,std")
+import numpy as np
+
+rev = df['Net Revenue (₹)'].to_numpy()
+print("Mean  :", np.mean(rev).round(2))
+print("Median:", np.median(rev))
+print("Std   :", np.std(rev).round(2))
+
+print("9.Find the maximum and minimum unit price using numpy")
+
+df = pd.read_excel('Ecommerce_Dataset_20K.xlsx')
+prices = df['Unit Price (₹)'].to_numpy()
+print("Max Price:", np.max(prices))
+print("Min Price:", np.min(prices))
+
+print("10.Use numpy to calculate total gross profit across all orders")
+
+df = pd.read_excel('Ecommerce_Dataset_20K.xlsx')
+gross_profit = df['Gross Profit (₹)'].to_numpy()
+print("Total Gross Profit: ₹", np.sum(gross_profit))
+
+print("11.Find the 25th, 50th, 75th percentile of Discount %")
+
+disc = df['Discount %'].to_numpy()
+print(np.percentile(disc, [25, 50, 75]))
+
+print("12.Count orders with Profit Margin % above 30 using boolean indexing")
+
+margin = df['Profit Margin %'].to_numpy()
+high_margin = margin[margin > 30]
+print("Orders with Margin > 30%:", len(high_margin))
+
+print("13.Filter Electronics orders and show top 5 by Net Revenue")
+
+electronics = df[df['Main Category'] == 'Electronics']
+top5 = electronics.nlargest(5, 'Net Revenue (₹)')
+print(top5[['Order ID', 'Product Name', 'Net Revenue (₹)']])
+
+print("14.Group by Customer Segment and find average Net Revenue")
+result = df.groupby('Customer Segment')['Net Revenue (₹)'].mean().round(2)
+print(result)
+
+print("15.Find total Units Ordered and total Net Revenue by Main Category")
+summary = df.groupby('Main Category').agg(
+    Total_Units=('Units Ordered', 'sum'),
+    Total_Revenue=('Net Revenue (₹)', 'sum')
+).reset_index()
+print(summary)
+
+print("16.Show Order ID, Customer Name, and Product Name together")
+
+subset = df[['Order ID', 'Customer Name', 'Product Name', 'Net Revenue (₹)']]
+print(subset.head(10))
+
+print("17.Sort dataset by Order Date descending and show latest 5 orders")
+df['Order Date'] = pd.to_datetime(df['Order Date'], dayfirst=True)
+latest = df.sort_values('Order Date', ascending=False).head(5)
+print(latest[['Order ID', 'Order Date', 'Customer Name']])
+
+print("18.Find top 5 Brands by total Net Revenue")
+
+brand_rev = df.groupby('Brand')['Net Revenue (₹)'].sum()
+print(brand_rev.nlargest(5))
+
+print("19.Count how many orders used each Payment Method")
+
+print(df['Payment Method'].value_counts())
+
+print("20.Calculate average Actual Delivery Days by Shipping Method")
+
+print(df.groupby('Shipping Method')['Actual Delivery Days'].mean().round(2))
+
+print("21.Check how many null values exist in each column")
+
+print(df.isnull().sum())
+
+print("22.Fill missing Return Reason with No Return ")
+
+df['Return Reason'] = df['Return Reason'].fillna('No Return')
+print(df['Return Reason'].isnull().sum())  # Should be 0
+
+print("23.Drop duplicate rows if any")
+
+before = df.shape[0]
+df = df.drop_duplicates()
+after = df.shape[0]
+print(f"Removed {before - after} duplicates")
+
+print("24.Convert Order Date column to datetime format")
+
+df['Order Date'] = pd.to_datetime(df['Order Date'], dayfirst=True)
+print(df['Order Date'].dtype)
+
+print("25.Rename Unit Price column to Unit_Price ")
+
+df = df.rename(columns={'Unit Price (₹)': 'Unit_Price'})
+print(df['Unit_Price'].head())
+
+print("26.Convert EMI Months to integer data type")
+
+df['EMI Months'] = df['EMI Months'].fillna(0).astype(int)
+print(df['EMI Months'].dtype)
+
+print("27.Use regex to extract only numeric part from Pincode column")
+import re
+
+df['Pincode_Clean'] = df['Pincode'].astype(str).apply(
+    lambda x: re.sub(r'D', '', x)
+)
+print(df['Pincode_Clean'].head())
+
+df = pd.read_excel('Ecommerce_Dataset_20K.xlsx')
+
+print("28. Plot a bar chart of total Net Revenue by Main Category")
+
+import matplotlib.pyplot as plt
+
+cat_rev = df.groupby('Main Category')['Net Revenue (₹)'].sum()
+cat_rev.plot(kind='bar', color='steelblue')
+plt.title('Revenue by Category')
+plt.ylabel('Revenue')
+plt.xticks(rotation=45)
+plt.show()
+
+print("29.Plot a histogram of Customer Age distribution")
+
+plt.hist(df['Customer Age'], bins=20, color='green', edgecolor='black')
+plt.title('Customer Age Distribution')
+plt.xlabel('Age')
+plt.ylabel('Count')
+plt.show()
+
+print("30.Create a pie chart of orders by Payment Method")
+
+pay = df['Payment Method'].value_counts()
+plt.pie(pay, labels=pay.index, autopct='%1.1f%%')
+plt.title('Orders by Payment Method')
+plt.show()
+
+print("31.Scatter plot of Unit Price vs Net Revenue colored by Main Category")
+# import seaborn as sns
+
+plt.scatter(df['Unit Price (₹)'], df['Net Revenue (₹)'], alpha=0.3, color='orange')
+plt.title('Unit Price vs Net Revenue')
+plt.xlabel('Unit Price')
+plt.ylabel('Net Revenue')
+plt.show()
+
+print("32.Plot a heatmap of correlation between numerical columns")
+
+import seaborn as sns
+
+nums = df.select_dtypes(include='number')
+sns.heatmap(nums.corr(), cmap='coolwarm')
+plt.title('Correlation Heatmap')
+plt.show()
+
+print("33.Create a boxplot of Net Revenue by Customer Segment")
+sns.boxplot(data=df, x='Customer Segment', y='Net Revenue (₹)')
+plt.title('Revenue by Customer Segment')
+plt.xticks(rotation=30)
+plt.show()
+
+print("34.Display summary statistics for all numerical columns")
+print(df.describe().round(2))
+
+print("35.Find the month with highest total Net Revenue")
+
+df['Order Date'] = pd.to_datetime(df['Order Date'], dayfirst=True)
+df['Month_Year'] = df['Order Date'].dt.to_period('M')
+best_month = df.groupby('Month_Year')['Net Revenue (₹)'].sum().idxmax()
+print("Best Month:", best_month)
+
+print("36.Calculate the Return Rate (% of orders with Return Requested = Yes)")
+return_rate = (df['Return Requested'] == 'Yes').sum() / len(df) * 100
+print(f"Return Rate: {return_rate:.2f}%")
+
+print("37.Find correlation between Review Score and Order Satisfaction")
+corr = df['Review Score'].corr(df['Order Satisfaction'])
+print(f"Correlation: {corr:.4f}")
+
+print("38.Find the top 3 states by number of orders placed")
+top_states = df['Shipping State'].value_counts().head(3)
+print(top_states)
+
+print("39.Export filtered Electronics orders to a CSV file")
+electronics = df[df['Main Category'] == 'Electronics']
+electronics.to_csv('electronics_orders.csv', index=False)
+print("File saved!")
+
+print("40.Export a grouped summary report to a new Excel file")
+summary = df.groupby('Main Category').agg(
+    Total_Orders=('Order ID', 'count'),
+    Total_Revenue=('Net Revenue (₹)', 'sum'),
+    Avg_Margin=('Profit Margin %', 'mean')
+).reset_index()
+
+summary.to_excel('category_summary_report.xlsx', index=False)
+print("Report exported!")
